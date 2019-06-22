@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head lang="en">
+    <title>Products</title>
+    <th:block th:include="layout/header"></th:block>
+    <link rel="stylesheet" th:href="@{/jquery.dataTables.min.css}" href="../../static/jquery.dataTables.min.css"/>
+    <script th:src="@{/jquery.dataTables.min.js}" src="../../static/jquery.dataTables.min.js"></script>
+</head>
+<body>
+<div class="container">
+    <form action="setSearch" class="form-horizontal">
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="idSForm">Id</label>
+            <div class="col-sm-10">
+                <input type="number" min="0" class="form-control" id="idSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="nameSForm">Name</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="nameSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="descriptionSForm">Description</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="descriptionSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="categorySForm">Category</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="categorySForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="typeSForm">Type</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="typeSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="lrtSForm">Left range type</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="lrtSForm">
+                    <option value="&gt;">&gt;</option>
+                    <option value="&gt;=">&gt;=</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="lpriceSForm">Left range value</label>
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="lpriceSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="rrtSForm">Right range type</label>
+            <div class="col-sm-10">
+                <select class="form-control" id="rrtSForm">
+                    <option value="&lt;">&lt;</option>
+                    <option value="&lt;=">&lt;=</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="control-label col-sm-2" for="rpriceSForm">Right range value</label>
+            <div class="col-sm-10">
+                <input type="number" class="form-control" id="rpriceSForm"/>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="button" class="btn btn-default" id="searchButton">Search</button>
+            </div>
+        </div>
+    </form>
+    <h2>Product Table</h2>
+    <table id="productsTable" class="display">
+
+        <!-- Header Table -->
+        <thead>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td></td>
+            <td></td>
+        </tr>
+        </tbody>
+        <!-- Footer Table -->
+        <tfoot>
+        <tr>
+            <th>Id</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Type</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+        </tfoot>
+    </table>
+    <script th:inline="javascript">
+
+        /*<![CDATA[*/
+        $(document).ready(function () {
+            $.fn.dataTable.ext.errMode = 'throw';
+            var postArg = {
+                "id": jQuery("#idSForm").val(),
+                "name": jQuery("#nameSForm").val(),
+                "description": jQuery("#descriptionSForm").val(),
+                "type": jQuery("#typeSForm").val(),
+                "category": jQuery("#categorySForm").val(),
+                "leftPriceField": jQuery("#lpriceSForm").val(),
+                "rightPriceField": jQuery("#rpriceSForm").val(),
+                "leftOP": jQuery("#lrtSForm").val(),
+                "rightOP": jQuery("#rrtSForm").val()
+            };
+            var dataSet;
+            var productTable;
+            $.ajax({
+                method: "POST",
+                url: "/searchResult",
+                data: postArg
+            }).done(function (json) {
+                dataSet = json;
+                productTable = $('#productsTable').DataTable({
+                    // "sAjaxSource": "/searchResult",
+                    // "processing": false,
+                    // "serverSide": false,
+                    // "ajax": {
+                    //     "url": "/searchResult",
+                    //     "type": "POST",
+                    //     "data": function ( d ) {
+                    //         d.id = jQuery("#idSForm").val();
+                    //         d.name = jQuery("#nameSForm").val();
+                    //         d.description = jQuery("#descriptionSForm").val();
+                    //         d.type = jQuery("#typeSForm").val();
+                    //         d.category = jQuery("#categorySForm").val();
+                    //         d.leftPriceField = jQuery("#lpriceSForm").val();
+                    //         d.rightPriceField = jQuery("#rpriceSForm").val();
+                    //         d.leftOP = jQuery("#lrtSForm").val();
+                    //         d.rightOP = jQuery("#rrtSForm").val();
+                    //         d.type = $("#type_selector").val();
+                    //     }
+                    // },
+                    // "sAjaxDataProp": postArg,
+                    "order": [[0, "asc"]],
+                    // "aoAjaxData": postArg,
+                    // "fnServerData": function (sSource, aoData) {
+                    //     aoData.push({
+                    //         "id": jQuery("#idSForm").val(),
+                    //         "name": jQuery("#nameSForm").val(),
+                    //         "description": jQuery("#descriptionSForm").val(),
+                    //         "type": jQuery("#typeSForm").val(),
+                    //         "category": jQuery("#categorySForm").val(),
+                    //         "leftPriceField": jQuery("#lrtSForm").val(),
+                    //         "rightPriceField": jQuery("#lpriceSForm").val(),
+                    //         "leftOP": jQuery("#rrtSForm").val(),
+                    //         "rightOP": jQuery("#rpriceSForm").val()
+                    //     });
+                    // },
+                    "data": dataSet,
+                    "aoColumns": [
+                        {"mData": "id"},
+                        {"mData": "name"},
+                        {"mData": "description"},
+                        {"mData": "type"},
+                        {"mData": "category"},
+                        {"mData": "price"},
+                        {
+                            "render": function (data, type, full, meta) {
+                                return '<a class="btn btn-default" href="/products/edit/' + full.id + '">Edit</a>';
+                            }
+                        },
+                        {
+                            "render": function (data, type, full, meta) {
+                                return '<a class="btn btn-danger" href="/products/delete/' + full.id + '">Delete</a>';
+                            }
+                        }
+                    ], searching: false, paging: true
+                });
+            });
+
+            $("#searchButton").on("click", function (ev) {
+                var postArg = {
+                    "id": jQuery("#idSForm").val(),
+                    "name": jQuery("#nameSForm").val(),
+                    "description": jQuery("#descriptionSForm").val(),
+                    "type": jQuery("#typeSForm").val(),
+                    "category": jQuery("#categorySForm").val(),
+                    "leftPriceField": jQuery("#lpriceSForm").val(),
+                    "rightPriceField": jQuery("#rpriceSForm").val(),
+                    "leftOP": jQuery("#lrtSForm").val(),
+                    "rightOP": jQuery("#rrtSForm").val()
+                };
+                $.ajax({
+                    method: "POST",
+                    url: "/searchResult",
+                    data: postArg
+                }).done(function (json) {
+                    dataSet = json;
+                    productTable.clear().draw();
+                    productTable.destroy();
+                    productTable = $('#productsTable').DataTable({
+                        // "sAjaxSource": "/searchResult",
+                        // "processing": false,
+                        // "serverSide": false,
+                        // "ajax": {
+                        //     "url": "/searchResult",
+                        //     "type": "POST",
+                        //     "data": function ( d ) {
+                        //         d.id = jQuery("#idSForm").val();
+                        //         d.name = jQuery("#nameSForm").val();
+                        //         d.description = jQuery("#descriptionSForm").val();
+                        //         d.type = jQuery("#typeSForm").val();
+                        //         d.category = jQuery("#categorySForm").val();
+                        //         d.leftPriceField = jQuery("#lpriceSForm").val();
+                        //         d.rightPriceField = jQuery("#rpriceSForm").val();
+                        //         d.leftOP = jQuery("#lrtSForm").val();
+                        //         d.rightOP = jQuery("#rrtSForm").val();
+                        //         d.type = $("#type_selector").val();
+                        //     }
+                        // },
+                        // "sAjaxDataProp": postArg,
+                        "order": [[0, "asc"]],
+                        // "aoAjaxData": postArg,
+                        // "fnServerData": function (sSource, aoData) {
+                        //     aoData.push({
+                        //         "id": jQuery("#idSForm").val(),
+                        //         "name": jQuery("#nameSForm").val(),
+                        //         "description": jQuery("#descriptionSForm").val(),
+                        //         "type": jQuery("#typeSForm").val(),
+                        //         "category": jQuery("#categorySForm").val(),
+                        //         "leftPriceField": jQuery("#lrtSForm").val(),
+                        //         "rightPriceField": jQuery("#lpriceSForm").val(),
+                        //         "leftOP": jQuery("#rrtSForm").val(),
+                        //         "rightOP": jQuery("#rpriceSForm").val()
+                        //     });
+                        // },
+                        "data": dataSet,
+                        "aoColumns": [
+                            {"mData": "id"},
+                            {"mData": "name"},
+                            {"mData": "description"},
+                            {"mData": "type"},
+                            {"mData": "category"},
+                            {"mData": "price"},
+                            {
+                                "render": function (data, type, full, meta) {
+                                    return '<a class="btn btn-default" href="/products/edit/' + full.id + '">Edit</a>';
+                                }
+                            },
+                            {
+                                "render": function (data, type, full, meta) {
+                                    return '<a class="btn btn-danger" href="/products/delete/' + full.id + '">Delete</a>';
+                                }
+                            }
+                        ], searching: false, paging: true
+                    });
+                });
+
+                // productTable.aoAjaxData = {
+                //     "id": jQuery("#idSForm").val(),
+                //     "name": jQuery("#nameSForm").val(),
+                //     "description": jQuery("#descriptionSForm").val(),
+                //     "type": jQuery("#typeSForm").val(),
+                //     "category": jQuery("#categorySForm").val(),
+                //     "leftPriceField": jQuery("#lpriceSForm").val(),
+                //     "rightPriceField": jQuery("#rpriceSForm").val(),
+                //     "leftOP": jQuery("#lrtSForm").val(),
+                //     "rightOP": jQuery("#rrtSForm").val()
+                // };
+                // // productTable.fnReloadAjax(null, null, true);
+                // productTable.load();
+            });
+        });
+        /*]]>*/
+    </script>
+</div>
+<img src="../../static/images/sort_asc.png" th:src="@{/images/sort_asc.png}" style="display: none"></img>
+<img src="../../static/images/sort_desc.png" th:src="@{/images/sort_desc.png}" style="display: none"></img>
+<img src="../../static/images/sort_both.png" th:src="@{/images/sort_both.png}" style="display: none"></img>
+</body>
+</html>
